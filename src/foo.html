@@ -1,0 +1,147 @@
+<html>
+    <head>
+        <title>HTML Donut Table from JSON</title>
+        <style>
+             table { border-collapse: collapse; }
+        td, th { border: 1px solid black; }
+        tr { background: #ccc; }
+        tr:nth-child(odd) { background: #eee; }
+        td > div { white-space: pre; } 
+        </style>
+       
+        
+    </head>
+    <body>
+       
+        <div id="showTable"></div>
+        <script type="text/javascript" src="script.js"></script>
+    </body>
+</html>
+
+<script>
+function DonutTable(array){
+    //create a table element
+    var table = document.createElement("table");
+    //create header columns
+    
+	var col = Object.keys(array[0]); //array of keys
+    //write keys onto the header cell
+    var tr = table.insertRow(-1);
+    col.forEach(function(key){
+        var th = document.createElement("th");
+        th.textContent = key;
+        tr.appendChild(th);
+    });
+    
+    //create rows to hold the rest of the data
+    array.forEach(function(obj){
+        //for each obj in the main array, create a row
+        var data_row = table.insertRow(-1);
+        //for each header in the col array, populate data
+        col.forEach(function(key){
+            var tabCell = data_row.insertCell(-1);
+            //Note: the value of batters is another obj, and value of topping is an array
+            if (key === "batters"){
+				//grab the value of batters and access value of batter
+                obj["batters"]["batter"].forEach(function(e){
+                    //for each e in batter, create a div element
+                    var div = document.createElement("div");
+                    //write on the div 
+                    div.textContent =  e.type + "(" + e.id + ")";
+                    tabCell.appendChild(div); })
+                }
+            if (Array.isArray(obj[key])){ //check if a value of a key is an array
+                obj[key].forEach(function(topping){
+                    //for each obj in topping, get id and type 
+                    var div = document.createElement("div");
+                    div.textContent =  topping.type + "(" + topping.id + ")";
+                    tabCell.appendChild(div);
+                })
+            }
+            else{
+                tabCell.textContent = obj[key];
+            }
+
+
+                })
+            })
+        
+    
+    var divContainer = document.getElementById("showTable");
+    divContainer.innerHTML = "";
+    divContainer.appendChild(table);
+
+}
+
+var donut = [
+	{
+		"id": "0001",
+		"type": "donut",
+		"name": "Cake",
+		"ppu": 0.55,
+		"batters":
+			{
+				"batter":
+					[
+						{ "id": "1001", "type": "Regular" },
+						{ "id": "1002", "type": "Chocolate" },
+						{ "id": "1003", "type": "Blueberry" },
+						{ "id": "1004", "type": "Devil's Food" }
+					]
+			},
+		"topping":
+			[
+				{ "id": "5001", "type": "None" },
+				{ "id": "5002", "type": "Glazed" },
+				{ "id": "5005", "type": "Sugar" },
+				{ "id": "5007", "type": "Powdered Sugar" },
+				{ "id": "5006", "type": "Chocolate with Sprinkles" },
+				{ "id": "5003", "type": "Chocolate" },
+				{ "id": "5004", "type": "Maple" }
+			]
+	},
+	{
+		"id": "0002",
+		"type": "donut",
+		"name": "Raised",
+		"ppu": 0.55,
+		"batters": 
+			{
+				"batter":
+					[
+						{ "id": "1001", "type": "Regular" }
+					]
+			},
+		"topping":
+			[
+				{ "id": "5001", "type": "None" },
+				{ "id": "5002", "type": "Glazed" },
+				{ "id": "5005", "type": "Sugar" },
+				{ "id": "5003", "type": "Chocolate" },
+				{ "id": "5004", "type": "Maple" }
+			]
+	},
+	{
+		"id": "0003",
+		"type": "donut",
+		"name": "Old Fashioned",
+		"ppu": 0.55,
+		"batters":
+			{
+				"batter":
+					[
+						{ "id": "1001", "type": "Regular" },
+						{ "id": "1002", "type": "Chocolate" }
+					]
+			},
+		"topping":
+			[
+				{ "id": "5001", "type": "None" },
+				{ "id": "5002", "type": "Glazed" },
+				{ "id": "5003", "type": "Chocolate" },
+				{ "id": "5004", "type": "Maple" }
+			]
+	}
+]
+DonutTable(donut);
+</script>

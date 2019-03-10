@@ -1,5 +1,5 @@
 import React from "react";
-import { makeData, Logo, Tips } from "./Utils";
+import { makeData } from "./Utils";
 import _ from 'lodash'
 
 // Import React Table
@@ -15,6 +15,8 @@ export default class AggregateTable extends React.Component {
   }
   render() {
     const { data } = this.state;
+    // console.log('##AggregateTable zero', data[0]);
+    // console.log('##myJSON', data);
     return (
       <div>
         <ReactTable
@@ -25,12 +27,24 @@ export default class AggregateTable extends React.Component {
               columns: [
                 {
                   Header: "First Name",
-                  accessor: "firstName"
+                  accessor: "firstName",
+                  PivotValue: ({ value }) =>
+                    <span style={{ color: "darkred" }}>
+                      {value}
+                    </span>
                 },
                 {
                   Header: "Last Name",
                   id: "lastName",
-                  accessor: d => d.lastName
+                  accessor: d => d.lastName,
+                  PivotValue: ({ value }) =>
+                    <span style={{ color: "darkblue" }}>
+                      {value}
+                    </span>,
+                  Footer: () =>
+                    <div style={{ textAlign: "center" }}>
+                      <strong>Pivot Column Footer</strong>
+                    </div>
                 }
               ]
             },
@@ -40,31 +54,95 @@ export default class AggregateTable extends React.Component {
                 {
                   Header: "Age",
                   accessor: "age",
-                  aggregate: vals => _.round(_.mean(vals)),
-                  Aggregated: row => {
-                    return (
-                      <span>
-                        {row.value} (avg)
-                      </span>
-                    );
-                  }
+                  aggregate: vals => {
+                    return _.round(_.mean(vals));
+                  },
+                  Aggregated: row =>
+                    <span>
+                      {row.value} (avg)
+                    </span>
                 },
                 {
                   Header: "Visits",
                   accessor: "visits",
-                  aggregate: vals => _.sum(vals)
+                  aggregate: vals => _.sum(vals),
+                  filterable: false
                 }
               ]
+            },
+            {
+              pivot: true,
+              Header: () =>
+                <strong>Overridden Pivot Column Header Group</strong>
+            },
+            {
+              expander: true
             }
           ]}
-          pivotBy={["firstName", "lastName"]}
           defaultPageSize={10}
           className="-striped -highlight"
+          pivotBy={["firstName", "lastName"]}
+          defaultSorted={[
+            { id: "firstName", desc: false },
+            { id: "lastName", desc: true }
+          ]}
+          collapseOnSortingChange={false}
+          filterable
+          ExpanderComponent={({ isExpanded, ...rest }) =>
+            isExpanded ? <span> &#10136; </span> : <span> &#10137; </span>}
+          SubComponent={row => {
+            return (
+              <div style={{ padding: "20px" }}>
+                <em>
+                  You can put any component you want here, even another React
+                  Table!
+                </em>
+                <br />
+                <br />
+                <ReactTable
+                  data={data}
+                  columns={[
+                    {
+                      Header: "Name",
+                      columns: [
+                        {
+                          Header: "First Name",
+                          accessor: "firstName"
+                        },
+                        {
+                          Header: "Last Name",
+                          id: "lastName"
+                        }
+                      ]
+                    },
+                    {
+                      Header: "Info",
+                      columns: [
+                        {
+                          Header: "Age",
+                          accessor: "age"
+                        },
+                        {
+                          Header: "Visits",
+                          accessor: "visits"
+                        }
+                      ]
+                    }
+                  ]}
+                  defaultPageSize={3}
+                  showPagination={false}
+                  SubComponent={row => {
+                    return (
+                      <div style={{ padding: "20px" }}>Sub Component!</div>
+                    );
+                  }}
+                />
+              </div>
+            );
+          }}
         />
-        <br />
-        <Tips />
-        <Logo />
       </div>
     );
   }
 }
+
